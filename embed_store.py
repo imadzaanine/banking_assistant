@@ -37,11 +37,14 @@ def store_embeddings(documents):
     # Crreating the metadata for each policy
     metadatas = [{ "title": policy["title"]} for policy in documents]
 
+    policy = [policy["content"] for policy in documents]
+
     # Store the embeddings in the collection
     collection.add(
         ids = ids,
         embeddings = embeddings.tolist(),
-        metadatas = metadatas
+        metadatas = metadatas,
+        documents = policy
     )
     print(f"Stored embeddings for {len(documents)} documents in the '{COLLECTION_NAME}' collection.")
 
