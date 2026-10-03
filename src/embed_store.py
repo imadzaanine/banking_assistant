@@ -50,7 +50,7 @@ def store_embeddings(documents):
 
 
 if __name__ == "__main__":
-    from parse import parse_docs
+    from src.parse import parse_docs
     documents = parse_docs()
     store_embeddings(documents)
 
