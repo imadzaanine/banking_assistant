@@ -1,4 +1,7 @@
 /chroma_db
 /documents
-/src/__pycache__
+__pycache__
 .env
+questions.json
+questions_raw.json
+all_policies.md

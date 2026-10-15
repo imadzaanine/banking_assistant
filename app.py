@@ -1,32 +1,43 @@
+
 from dotenv import load_dotenv
-load_dotenv()  
-
-from langsmith import traceable
-from src.generate import generate_answers
-from src.retrieve import retrieve_embeddings
+load_dotenv()
 
 
-@traceable(name="retrieve", run_type="retriever")
-def retrieve(query, top_k=3):
-    results = retrieve_embeddings(query, top_k=top_k)
-    return results["documents"][0]
+from langgraph.graph import START,END, StateGraph
+from state import AgentState
+from processing import Processing_node
+from retrieve import Retrieve_node
 
 
-@traceable(name="generate")
-def generate(query, document):
-    return generate_answers(query, document)
+
+graph = StateGraph(AgentState)
+
+graph.add_node("Processing", Processing_node)
+graph.add_node("Retreiver",Retrieve_node)
+
+graph.add_edge(START,"Retreiver")
+graph.add_edge("Retreiver","Processing")
+graph.add_edge("Processing", END)
 
 
-@traceable(name="rag_pipeline")
-def rag(query):
-    docs = retrieve(query, top_k=3)
-    docs = "\n\n".join(docs) 
-    return generate(query, docs)  
+
+app = graph.compile()
+
+while True:
+    query = input("You: ").strip()
+
+    if not query:
+        continue
+    if query.lower() in {"exit", "quit", "q"}:
+        print("Goodbye!")
+        break
+
+    result = app.invoke({
+        "query": query,
+        "chunks": [],
+        "final_message": "",
+    })
+    print(f"\nAssistant: {result['final_message']}\n")
 
 
-if __name__ == "__main__":
-    while True:  
-        query = input("Enter your query: ")
-        generated_answer = rag(query)
-        print("\nGenerated Answer:")
-        print(generated_answer)
+
